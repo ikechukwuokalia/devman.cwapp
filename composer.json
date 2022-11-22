@@ -1,10 +1,10 @@
 {
   "name": "ikechukwuokalia/devman.cwapp",
-  "description": "Developer manager for Catali Web OS - web app",
-  "keywords": ["email","service", "io", "ikechukwu", "okalia", "catali"],
+  "description": "CWS Developer management web app",
+  "keywords": ["devman", "cws", "dev", "developer", "catali", "web", "stores"],
   "homepage": "https://github.com/ikechukwuokalia/devman.cwapp",
   "type": "library",
-  "license": "MIT",
+  "license": "",
   "authors": [
     {
       "name": "Ikechukwu Okalia",
@@ -26,13 +26,12 @@
     "tymfrontiers-cdn/php-validator" : ">=0.1@stable",
     "tymfrontiers-cdn/php-generic" : ">=0.1@stable",
     "tymfrontiers-cdn/php-multiform" : ">=0.1@stable",
-    "ikechukwuokalia/helper.cwapp" : ">=0.1@stable"
+    "cataliws/helper.cwapp" : ">=0.1@stable"
   },
   "require-dev": {},
   "autoload": {
     "psr-4": {
-      "IO\\" : "src/",
-      "Catali\\Developer\\" : "src/"
+      "Catali\\Developer\\": "src/"
     },
     "files" : [
       "src/Helper.php"
