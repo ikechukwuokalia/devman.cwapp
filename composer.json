@@ -4,7 +4,7 @@
   "keywords": ["devman", "cws", "dev", "developer", "catali", "web", "stores"],
   "homepage": "https://github.com/ikechukwuokalia/devman.cwapp",
   "type": "library",
-  "license": "",
+  "license": "MIT",
   "authors": [
     {
       "name": "Ikechukwu Okalia",
