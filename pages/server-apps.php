@@ -27,7 +27,7 @@ require_once "../.appinit.php";
   <link rel="stylesheet" href="/assets/css/base.min.css">
   <link rel="stylesheet" href="/app/cataliws/devman.cwapp/css/devman.min.css">
 </head>
-<body class="theme-asphalt">
+<body class="theme-<?php echo \IO\get_constant("PRJ_THEME"); ?>">
   <div id="cwos-uiloadr"></div>
   <input type="hidden" data-setup="page" data-name="dev-apps" data-group="dev">
   <input type="hidden" data-setup="ui" data-handler="DashUI" data-header="/app/index/get/dashui/header?rdt=<?php echo THIS_PAGE; ?>" data-sidebar="/app/index/get/dashui/sidebar" data-autoinit="true">
