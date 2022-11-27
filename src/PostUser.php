@@ -1,5 +1,5 @@
 <?php
-namespace Catali;
+namespace IO;
 require_once "../.appinit.php";
 use \TymFrontiers\Generic,
     \TymFrontiers\HTTP,
@@ -21,7 +21,6 @@ if( !empty($post['phone']) && !empty($post["country_code"]) ){
 
 $gen = new Generic;
 $params = $gen->requestParam([
-  "user" => ["user","pattern", "/^252(\s|\-|\.)?([\d]{4,4})(\s|\-|\.)?([\d]{4,4})$/"],
   "server" => ["server","option", get_server_keys()],
   "country_code" => ["country_code","username", 2, 2],
   "name" => ["name","name"],
@@ -29,11 +28,8 @@ $params = $gen->requestParam([
   "email" => ["email","email"],
   "phone" => ["phone","tel"],
   "is_system" => ["is_system","boolean"],
-  "status" => ["status","option", ["ACTIVE"]],
-
-  "form" => ["form","text",2,72],
-  "CSRF_token" => ["CSRF_token","text",5,1024]
-], $post, ["server", "user", "name", "surname", "email", "phone", "country_code", "form", "CSRF_token"]);
+  "status" => ["status","option", ["ACTIVE"]]
+], $post, ["server", "name", "surname", "email", "phone", "country_code"]);
 
 if (!$params || !empty($gen->errors)) {
   $errors = (new InstanceError($gen,true))->get("requestParam",true);
@@ -41,15 +37,6 @@ if (!$params || !empty($gen->errors)) {
     "status" => "3." . \count($errors),
     "errors" => $errors,
     "message" => "Request halted"
-  ]);
-  exit;
-}
-if ( !$gen->checkCSRF($params["form"],$params["CSRF_token"]) ) {
-  $errors = (new InstanceError($gen,true))->get("checkCSRF",true);
-  echo \json_encode([
-    "status" => "3." . \count($errors),
-    "errors" => $errors,
-    "message" => "Request halted."
   ]);
   exit;
 }
@@ -71,20 +58,12 @@ if (!$conn instanceof MySQLDatabase) {
   ]);
   exit;
 }
-$db_name = get_database($server_name, "developer");
+$db_name = get_database("developer", $server_name);
 $conn->changeDB($db_name);
 
-$params["user"] = \str_replace([" ", "-", ".", "_"],"",$params["user"]);
 $dev = new MultiForm($db_name, "users", "code", $conn);
 
-if ($dev->valExist($params['user'], "user")) {
-  echo \json_encode([
-    "status" => "3.1",
-    "errors" => ["Profile already exist for this [user] on same [server]"],
-    "message" => "Request failed."
-  ]);
-  exit;
-} if ($dev->valExist($params['email'], "email")) {
+if ($dev->valExist($params['email'], "email")) {
   echo \json_encode([
     "status" => "3.1",
     "errors" => ["This [email] is already in use on the selected [server]"],

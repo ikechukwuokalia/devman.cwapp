@@ -1,5 +1,5 @@
 <?php
-namespace Catali;
+namespace IO;
 
 use TymFrontiers\BetaTym;
 use TymFrontiers\Data;
@@ -22,11 +22,8 @@ $params = $gen->requestParam([
   "server" => ["server","option", get_server_keys()],
   "search" => ["search","text",1,56],
   "page" =>["page","int",1,0],
-  "limit" =>["limit","int",1,0],
-
-  "form" => ["form","text",2,55],
-  "CSRF_token" => ["CSRF_token","text",5,500]
-], $post, ["server", "CSRF_token", "form"] );
+  "limit" =>["limit","int",1,0]
+], $post, ["server"] );
 
 if (!$params || !empty($gen->errors)) {
   $errors = (new InstanceError ($gen, false))->get("requestParam",true);
@@ -37,15 +34,7 @@ if (!$params || !empty($gen->errors)) {
   ]);
   exit;
 }
-if ( !$gen->checkCSRF($params["form"],$params["CSRF_token"]) ) {
-  $errors = (new InstanceError ($gen,false))->get("checkCSRF",true);
-  echo \json_encode([
-    "status" => "3." . \count($errors),
-    "errors" => $errors,
-    "message" => "Request failed."
-  ]);
-  exit;
-}
+
 $server_name = $params["server"];
 if ($server_name !== get_constant("PRJ_SERVER_NAME")) {
   $new_conn = true;
@@ -63,7 +52,7 @@ if (!$conn instanceof MySQLDatabase) {
   ]);
   exit;
 }
-$db_name = get_database($server_name, "developer");
+$db_name = get_database("developer", $server_name);
 $conn->changeDB($db_name);
 $count = 0;
 $data = new MultiForm($db_name, 'request_history', 'id', $conn);

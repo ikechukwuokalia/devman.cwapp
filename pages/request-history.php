@@ -1,5 +1,5 @@
 <?php
-namespace Catali;
+namespace IO;
 require_once "../.appinit.php";
 
 \require_login(true);
@@ -23,23 +23,22 @@ $page_name = "request-history";
   <meta name="publisher" content="<?php echo get_constant("PRJ_PUBLISHER"); ?>">
   <meta name="robots" content='nofollow'>
   
-    <!-- Theming styles -->
-  <link rel="stylesheet" href="/app/tymfrontiers/font-awesome-pro.soswapp/css/font-awesome-pro.min.css">
   <!-- Project styling -->
+  <link rel="stylesheet" href="/app/cataliwos/plugin.cwapp/css/font-awesome.min.css">
   <link rel="stylesheet" href="/app/cataliwos/plugin.cwapp/css/theme.min.css">
   <link rel="stylesheet" href="/app/cataliwos/dashui.cwapp/css/dashui.min.css">
-  <link rel="stylesheet" href="/app/cataliws/helper.cwapp/css/helper.min.css">
+  <link rel="stylesheet" href="/app/ikechukwuokalia/helper.cwapp/css/helper.min.css">
   <link rel="stylesheet" href="/assets/css/base.min.css">
-  <link rel="stylesheet" href="/app/cataliws/devman.cwapp/css/devman.min.css">
+  <link rel="stylesheet" href="/app/ikechukwuokalia/devman.cwapp/css/devman.min.css">
 </head>
 <body class="theme-<?php echo \IO\get_constant("PRJ_THEME"); ?>">
   <div id="cwos-uiloadr"></div>
   <input type="hidden" data-setup="page" data-pager="#data-pager" data-container="#history-list" data-search="histories" data-handler="lsHst" data-name="<?php echo $page_name; ?>" data-group="<?php echo $nav_group; ?>">
-  <input type="hidden" data-setup="ui" data-handler="DashUI" data-header="/app/index/get/dashui/header?rdt=<?php echo THIS_PAGE; ?>" data-sidebar="/app/index/get/dashui/sidebar" data-autoinit="true">
+  <input type="hidden" data-setup="ui" data-handler="DashUI" data-header="/app/admin/get/dashui/header?rdt=<?php echo THIS_PAGE; ?>" data-sidebar="/app/admin/get/dashui/sidebar?domain=project-dev" data-autoinit="true">
   <input type="hidden" data-setup="uiOption" data-max-cart-item="6" data-max-notice-item="6">
   <input type="hidden" data-setup="uiNotification" data-delete="/app/helper/delete/notification" data-path="/app/user/notifications" data-get="/app/helper/get/notification">
   <input type="hidden" data-setup="uiCart" data-delete="/app/helper/delete/cart" data-path="/index/checkout" data-get="/app/helper/get/cart">
-  <input type="hidden" data-setup="dnav" data-group="developers" data-clear-elem="#cwos-content" data-pos="affix" data-container="#cwos-content" data-get="/app/index/get/navigation" data-ini-top-pos="0" data-stick-on="">
+  <input type="hidden" data-setup="dnav" data-group="project-dev" data-clear-elem="#cwos-content" data-pos="affix" data-container="#cwos-content" data-get="/app/admin/get/navigation" data-ini-top-pos="0" data-stick-on="">
 
   <section id="cwos-content">
     <div class="view-space">
@@ -53,14 +52,12 @@ $page_name = "request-history";
             data-validate="false"
             onsubmit="cwos.form.submit(this, doFetch); return false;"
             >
-            <input type="hidden" name="form" value="apphst-query-form">
-            <input type="hidden" name="CSRF_token" value="<?php echo $session->createCSRFtoken("apphst-query-form");?>">
 
             <div class="grid-5-tablet">
               <label> <i class="fas fa-database"></i> Server</label>
               <select name="server" id="query-server">
                 <optgroup label="API Servers">
-                  <?php foreach (get_cws_server() as $name => $info) {
+                  <?php foreach (get_servers() as $name => $info) {
                     echo "<option value=\"{$name}\">{$name} ({$info['domain']})</option>";
                   }?>
                 </optgroup>
@@ -119,9 +116,9 @@ $page_name = "request-history";
     <script src="/app/cataliwos/plugin.cwapp/js/class-object.min.js"></script>
     <script src="/app/cataliwos/dashui.cwapp/js/dashui.min.js"></script>
     <script src="/app/cataliwos/plugin.cwapp/js/theme.min.js"></script>
-    <script src="/app/cataliws/helper.cwapp/js/helper.min.js"></script>
+    <script src="/app/ikechukwuokalia/helper.cwapp/js/helper.min.js"></script>
     <script src="/assets/js/base.min.js"></script>
-    <script src="/app/cataliws/devman.cwapp/js/devman.min.js"></script>
+    <script src="/app/ikechukwuokalia/devman.cwapp/js/devman.min.js"></script>
     <script type="text/javascript">
       $(document).ready(function() {
         requery();

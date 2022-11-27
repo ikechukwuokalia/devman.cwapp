@@ -1,5 +1,5 @@
 <?php
-namespace Catali;
+namespace IO;
 require_once "../.appinit.php";
 use \TymFrontiers\Generic,
     \TymFrontiers\HTTP,
@@ -31,11 +31,8 @@ $params = $gen->requestParam([
   "surname" => ["surname","name"],
   "email" => ["email","email"],
   "phone" => ["phone","tel"],
-  "is_system" => ["is_system","boolean"],
-
-  "form" => ["form","text",2,72],
-  "CSRF_token" => ["CSRF_token","text",5,1024]
-], $post, ["server", "code", "form", "CSRF_token"]);
+  "is_system" => ["is_system","boolean"]
+], $post, ["server", "code"]);
 
 if (!$params || !empty($gen->errors)) {
   $errors = (new InstanceError($gen,true))->get("requestParam",true);
@@ -43,15 +40,6 @@ if (!$params || !empty($gen->errors)) {
     "status" => "3." . \count($errors),
     "errors" => $errors,
     "message" => "Request halted"
-  ]);
-  exit;
-}
-if ( !$gen->checkCSRF($params["form"],$params["CSRF_token"]) ) {
-  $errors = (new InstanceError($gen,true))->get("checkCSRF",true);
-  echo \json_encode([
-    "status" => "3." . \count($errors),
-    "errors" => $errors,
-    "message" => "Request halted."
   ]);
   exit;
 }
@@ -73,7 +61,7 @@ if (!$conn instanceof MySQLDatabase) {
   ]);
   exit;
 }
-$db_name = get_database($server_name, "developer");
+$db_name = get_database("developer", $server_name);
 $conn->changeDB($db_name);
 
 $params["code"] = \str_replace([" ", "-", ".", "_"],"",$params["code"]);

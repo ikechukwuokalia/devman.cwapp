@@ -1,21 +1,19 @@
 <?php
-namespace Catali;
+namespace IO;
 require_once "../../.appinit.php";
 use \TymFrontiers\Generic,
     \TymFrontiers\MultiForm,
-    \TymFrontiers\MySQLDatabase,
     \TymFrontiers\InstanceError;
 
 \require_login(false);
-\check_access("UPDATE", "/apps", "project-dev","", false);
+\check_access("WRITE", "/apps", "project-dev","", false);
 $errors = [];
 $gen = new Generic;
 $app = false;
 $params = $gen->requestParam([
-  "name" => ["name","pattern", "/^([a-z0-9\.\-]{4,128})$/s"],
-  "server" => ["server","option", get_server_keys()],
+  "user" => ["user","pattern", "/^(352|252|052)(\s|\-|\.)?([0-9]{4,4})(\s|\-|\.)?([0-9]{4,4})$/"],
   "callback" => ["callback","username",3,35,[],'MIXED']
-], $_GET, ["name", "server"]);
+], $_GET, []);
 if (!$params || !empty($gen->errors)) {
   $errs = (new InstanceError($gen,true))->get("requestParam",true);
   foreach ($errs as $er) {
@@ -23,25 +21,8 @@ if (!$params || !empty($gen->errors)) {
   }
 }
 if( $params ):
-  $server_name = $params["server"];
-  if ($server_name !== get_constant("PRJ_SERVER_NAME")) {
-    $new_conn = true;
-    $cred = get_dbuser($server_name, $session->access_group());
-    $conn = new MySQLDatabase(get_dbserver($server_name), $cred[0], $cred[1]);
-  } else {
-    $new_conn = false;
-    $conn = $database;
-  }
-  if (!$conn instanceof MySQLDatabase) {
-    $errors[] = "Failed to connect to server.";
-  } else {
-    $db_name = get_database($server_name, "developer");
-    $conn->changeDB($db_name);
-    if (!$app = (new MultiForm($db_name, "apps", "name", $conn))->findById($params["name"])) {
-      $errors[] = "Dev App profile was not found for given [name].";
-    }
-  }
 endif;
+if (!empty($params["user"]))  $params["user"] = \str_replace([" ", "-", ".", "_"],"",$params["user"]);
 ?>
 <script type="text/javascript">
   if (typeof window["param"] == undefined || !window["param"]) window["param"] = {};
@@ -55,7 +36,7 @@ endif;
     <div class="grid-10-tablet grid-8-laptop center-tablet">
       <div class="sec-div theme-color asphalt bg-white drop-shadow">
         <header class="paddn -pall -p20 color-bg">
-          <h1 class="fw-lighter"> <i class="fal fa-edit"></i> API App</h1>
+          <h1 class="fw-lighter"> <i class="fas fa-plus"></i> API App</h1>
         </header>
 
         <div class="paddn -pall -p20">
@@ -71,34 +52,57 @@ endif;
             id="do-post-form"
             class="block-ui"
             method="post"
-            action="/app/developer/src/UpdateApp.php"
+            action="/app/developer/src/PostApp.php"
             data-validate="false"
             onsubmit="cwos.form.submit(this,doPost); return false;"
             >
-            <input type="hidden" name="server" value="<?php echo @ $params['server']; ?>">
-            <input type="hidden" name="name" value="<?php echo @ $params['name']; ?>">
-            <input type="hidden" name="form" value="apiapp-form">
-            <input type="hidden" name="CSRF_token" value="<?php echo ($session->createCSRFtoken("apiapp-form"));?>">
             
             <div class="grid-6-tablet">
-              <label for="domain">Domain</label>
-              <input type="text" value="<?php echo $app ? $app->domain : ""; ?>" pattern="([a-z0-9\.\-]{4,128})" name="domain" id="domain" placeholder="domain-name.ext">
+              <label> <i class="fas fa-database"></i> Server</label>
+              <select name="server" required id="server">
+                <optgroup label="API Servers">
+                  <?php foreach (get_servers() as $name => $info) {
+                    echo "<option value=\"{$name}\">{$name} ({$info['domain']})</option>";
+                  }?>
+                </optgroup>
+              </select>
             </div>
             <div class="grid-5-tablet">
-              <label for="endpoint">Endpoint</label>
-              <input type="text" value="<?php echo $app ? $app->endpoint : ""; ?>" pattern="([a-z0-9\-\/]{4,56})" name="endpoint" id="endpoint" placeholder="/callback/endpoint">
+              <label for="user">User</label>
+              <input type="text" value="<?php echo !empty($params['user']) ? $params['user'] : ''; ?>" name="user" required pattern="(352|252|052)([\-|\s]{1,1})?([\d]{4,4})([\-|\s]{1,1})?([\d]{4,4})" id="user" value="<?php echo !empty($params['user']) ? $params['user'] : "";  ?>" placeholder="252 0000 0000">
+            </div>
+            <br class="c-f">
+            <div class="grid-5-tablet">
+              <label for="name"> <i class="fas fa-asterisk fa-border"></i> App Name</label>
+              <input type="text" pattern="([a-z0-9\.\-]{4,128})" name="name" id="name" required placeholder="app-name">
             </div>
             <div class="grid-7-tablet">
-              <label for="title"> <i class="fal fa-asterisk fa-border"></i> App Title</label>
-              <input type="text" value="<?php echo $app ? $app->title : ""; ?>" minlength="5" maxlength="52" name="title" id="title" required placeholder="App/project title">
+              <label for="domain">Domain</label>
+              <input type="text" pattern="([a-z0-9\.\-]{4,128})" name="domain" id="domain" placeholder="domain-name.ext">
+            </div> <br class="c-f">
+            <div class="grid-6-tablet">
+              <label for="endpoint">Endpoint</label>
+              <input type="text" pattern="([a-z0-9\-\/]{4,56})" name="endpoint" id="endpoint" placeholder="/callback/endpoint">
+            </div> <br class="c-f">
+            <div class="grid-3-tablet">
+              <label for="prefix"> <i class="fas fa-asterisk fa-border"></i> Prefix</label>
+              <input type="text" pattern="([A-Z0-9]{2,5})" name="prefix" id="prefix" required placeholder="APP">
+            </div>
+            <div class="grid-7-tablet">
+              <label for="title"> <i class="fas fa-asterisk fa-border"></i> App Title</label>
+              <input type="text" minlength="5" maxlength="52" name="title" id="title" required placeholder="App/project title">
             </div>
             <div class="grid-12-tablet">
               <label for="description">Description</label>
-              <textarea name="description" id="description" minlength="15" maxlength="127" required class="autosize" placeholder="Enter app description here"><?php echo $app ? $app->description : ""; ?></textarea>
+              <textarea name="description" id="description" minlength="15" maxlength="127" required class="autosize" placeholder="Enter app description here"></textarea>
             </div>
-
+            <div class="grid-5-tablet">
+              <label> Activate</label> <br>
+              <input type="checkbox" name="status" value="ACTIVE" id="activate">
+              <label for="activate">Yes</label>
+            </div>
             <div class="grid-4-tablet"> 
-              <button id="submit-form" type="submit" class="theme-btn asphalt"> <i class="fal fa-save"></i> Save </button>
+              <button id="submit-form" type="submit" class="theme-btn asphalt"> <i class="fas fa-save"></i> Save </button>
             </div>
 
             <br class="c-f">

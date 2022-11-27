@@ -1,5 +1,5 @@
 <?php
-namespace Catali;
+namespace IO;
 require_once "../.appinit.php";
 use \TymFrontiers\Generic,
     \TymFrontiers\MultiForm,
@@ -15,11 +15,8 @@ $gen = new Generic;
 $params = $gen->requestParam([
   "code" => ["code","pattern", "/^352(\s|\-|\.)?([\d]{4,4})(\s|\-|\.)?([\d]{4,4})$/"],
   "server" => ["server","option", get_server_keys()],
-  "status" => ["status","option", ["ACTIVE", "SUSPENDED", "BANNED", "DISABLED"]],
-
-  "form" => ["form","text",2,72],
-  "CSRF_token" => ["CSRF_token","text",5,1024]
-],$post,["code", "server", "status", "form", "CSRF_token"]);
+  "status" => ["status","option", ["ACTIVE", "SUSPENDED", "BANNED", "DISABLED"]]
+],$post,["code", "server", "status"]);
 
 if (!$params || !empty($gen->errors)) {
   $errors = (new InstanceError($gen,true))->get("requestParam",true);
@@ -27,15 +24,6 @@ if (!$params || !empty($gen->errors)) {
     "status" => "3." . \count($errors),
     "errors" => $errors,
     "message" => "Request failed"
-  ]);
-  exit;
-}
-if ( !$gen->checkCSRF($params["form"],$params["CSRF_token"]) ) {
-  $errors = (new InstanceError($gen,true))->get("checkCSRF",true);
-  echo \json_encode([
-    "status" => "3." . \count($errors),
-    "errors" => $errors,
-    "message" => "Request failed."
   ]);
   exit;
 }
@@ -57,7 +45,7 @@ if (!$conn instanceof MySQLDatabase) {
   ]);
   exit;
 }
-$db_name = get_database($server_name, "developer");
+$db_name = get_database("developer", $server_name);
 $conn->changeDB($db_name);
 
 include PRJ_ROOT . "/src/Pre-Process.php";
